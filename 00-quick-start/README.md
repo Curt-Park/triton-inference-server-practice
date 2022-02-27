@@ -178,6 +178,63 @@ Usage: install/bin/image_client [options] <image filename / image folder>
 
 ## Add a TorchScript model for MNIST classification
 
+#### Initialize python environment to train a MNIST CNN model
+```bash
+$ source init.sh
+```
+
+#### Train a CNN model
+```bash
+$ python train.py  # this saves the best model as "model.pt"
+```
+
+#### Create a directory for the model in `model_repository`, and move `model.pt` and `confing.pbtxt` with the following structure
+```bash
+# In model_repository
+mnist_cnn
+├── 1
+│   └── model.pt  # the trained model
+└── config.pbtxt
+```
+See [Model Repository](https://github.com/triton-inference-server/server/blob/main/docs/model_repository.md)
+and [Model Configuration](https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md)
+for more information about the file structure and `config.pbtxt`.
+
+#### Run Triton again
+```bash
+$ docker run --gpus 1 --rm -p 9000:8000 -p 9001:8001 -p 9002:8002 -v $(pwd)/model_repository:/models nvcr.io/nvidia/tritonserver:22.02-py3 tritonserver --model-repository=/models
+
+...
+I0227 15:43:39.729784 1 server.cc:592]
++----------------------+---------+--------+
+| Model                | Version | Status |
++----------------------+---------+--------+
+| densenet_onnx        | 1       | READY  |
+| inception_graphdef   | 1       | READY  |
+| mnist_cnn            | 1       | READY  |
+| simple               | 1       | READY  |
+| simple_dyna_sequence | 1       | READY  |
+| simple_identity      | 1       | READY  |
+| simple_int8          | 1       | READY  |
+| simple_sequence      | 1       | READY  |
+| simple_string        | 1       | READY  |
++----------------------+---------+--------+
+...
+```
+
+Check the model configuration.
+```bash
+$ curl localhost:9000/v2/models/mnist_cnn/config
+
+{"name":"mnist_cnn","platform":"pytorch_libtorch","backend":"pytorch","version_policy":{"latest":{"num_versions":1}},"max_batch_size":100,"input":[{"name":"input__0","data_type":"TYPE_FP32","format":"FORMAT_NONE","dims":[28,28,1],"is_shape_tensor":false,"allow_ragged_batch":false,"optional":false}],"output":[{"name":"output__0","data_type":"TYPE_FP32","dims":[10],"label_filename":"","is_shape_tensor":false}],"batch_input":[],"batch_output":[],"optimization":{"priority":"PRIORITY_DEFAULT","input_pinned_memory":{"enable":true},"output_pinned_memory":{"enable":true},"gather_kernel_buffer_threshold":0,"eager_batching":false},"dynamic_batching":{"preferred_batch_size":[50],"max_queue_delay_microseconds":0,"preserve_ordering":false,"priority_levels":0,"default_priority_level":0,"priority_queue_policy":{}},"instance_group":[{"name":"mnist_cnn_0","kind":"KIND_GPU","count":1,"gpus":[0],"secondary_devices":[],"profile":[],"passive":false,"host_policy":""}],"default_model_filename":"model.pt","cc_model_filenames":{},"metric_tags":{},"parameters":{},"model_warmup":[]}
+```
+
+#### Test the model
+
 
 ## References
 - https://github.com/triton-inference-server/server/blob/main/docs/quickstart.md
+- https://github.com/triton-inference-server/server/blob/main/docs/model_repository.md
+- https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md
+- https://github.com/triton-inference-server/backend/blob/main/README.md#backends
+- https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md#auto-generated-model-configuration

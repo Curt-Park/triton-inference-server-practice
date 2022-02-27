@@ -18,7 +18,7 @@ from torch.optim.lr_scheduler import StepLR
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
-from data import get_dataloaders
+from dataloader import get_dataloaders
 
 
 def parse_args() -> argparse.Namespace:
