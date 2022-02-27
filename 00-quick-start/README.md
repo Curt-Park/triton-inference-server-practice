@@ -1,5 +1,5 @@
-## 1. Install Triton with Docker image (For GPUs)
-Install [Docker](https://docs.docker.com/engine/install/) and Check out [the triton image version](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver/tags)
+## 1. Setup Triton server with Docker image (For GPUs)
+Install [Docker](https://docs.docker.com/engine/install/) and pull [the triton image](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver/tags)
 
 ```bash
 $ docker pull nvcr.io/nvidia/tritonserver:22.02-py3
