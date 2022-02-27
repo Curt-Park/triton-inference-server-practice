@@ -1,5 +1,3 @@
-https://github.com/triton-inference-server/server/blob/main/docs/quickstart.md
-
 ## 1. Install Triton with Docker image (For GPUs)
 Install [Docker](https://docs.docker.com/engine/install/) and Check out [the triton image version](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver/tags)
 
