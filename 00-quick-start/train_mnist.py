@@ -41,9 +41,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--epochs",
         type=int,
-        default=10,
+        default=20,
         metavar="N",
-        help="number of epochs to train (default: 14)",
+        help="number of epochs to train (default: 20)",
     )
     parser.add_argument(
         "--lr",
@@ -125,12 +125,9 @@ def test(
     test_loss /= len(test_loader.dataset)
     test_acc = 100.0 * correct / len(test_loader.dataset)
 
-    logger.info(
-        "Test set: Average loss: %.4f\tAccuracy: %d/%d (%.2f%%)",
-        test_loss,
-        correct,
-        len(test_loader.dataset),
-        test_acc,
+    print(
+        f"Test set: Average loss: {test_loss:.4f}\t"
+        f"Accuracy: {correct}/{len(test_loader.dataset)} ({test_acc:.2f}%%)",
     )
 
     return test_acc
@@ -141,26 +138,26 @@ def main() -> None:
     args = parse_args()
 
     torch.manual_seed(args.seed)
-    logger.info("Use torch seed %d", args.seed)
+    print("Use torch seed", args.seed)
 
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
-    logger.info("Torch device: %s", device)
+    print("Torch device:", device)
 
     train_loader, test_loader = get_dataloaders(
         batch_size=args.batch_size,
         test_batch_size=args.test_batch_size,
         use_cuda=use_cuda,
     )
-    logger.info("Dataloaders created")
+    print("Dataloaders created")
 
     model = ConvNet().to(device)
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
-    logger.info("Model and optimizer prepared")
+    print("Model and optimizer prepared")
 
     best_acc = 0.0
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
-    logger.info("Start training")
+    print("Start training")
     for epoch in range(1, args.epochs + 1):
         train(
             model=model,
@@ -175,8 +172,8 @@ def main() -> None:
         if args.save_model and test_acc > best_acc:
             best_acc = test_acc
             model_scripted = torch.jit.script(model)
-            model_scripted.save("../../mnist_cnn.pt")
-            logger.info("The best model saved")
+            model_scripted.save("model.pt")
+            print("The best model saved")
 
 
 if __name__ == "__main__":
