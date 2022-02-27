@@ -12,7 +12,7 @@ input [
   {
     name: "input__0"
     data_type: TYPE_FP32
-    dims: [ 28, 28, 1 ]
+    dims: [ 1, 28, 28 ]
   }
 ]
 output [

@@ -229,8 +229,29 @@ $ curl localhost:9000/v2/models/mnist_cnn/config
 {"name":"mnist_cnn","platform":"pytorch_libtorch","backend":"pytorch","version_policy":{"latest":{"num_versions":1}},"max_batch_size":100,"input":[{"name":"input__0","data_type":"TYPE_FP32","format":"FORMAT_NONE","dims":[28,28,1],"is_shape_tensor":false,"allow_ragged_batch":false,"optional":false}],"output":[{"name":"output__0","data_type":"TYPE_FP32","dims":[10],"label_filename":"","is_shape_tensor":false}],"batch_input":[],"batch_output":[],"optimization":{"priority":"PRIORITY_DEFAULT","input_pinned_memory":{"enable":true},"output_pinned_memory":{"enable":true},"gather_kernel_buffer_threshold":0,"eager_batching":false},"dynamic_batching":{"preferred_batch_size":[50],"max_queue_delay_microseconds":0,"preserve_ordering":false,"priority_levels":0,"default_priority_level":0,"priority_queue_policy":{}},"instance_group":[{"name":"mnist_cnn_0","kind":"KIND_GPU","count":1,"gpus":[0],"secondary_devices":[],"profile":[],"passive":false,"host_policy":""}],"default_model_filename":"model.pt","cc_model_filenames":{},"metric_tags":{},"parameters":{},"model_warmup":[]}
 ```
 
-#### Test the model
+#### Install Triton Client
 
+```bash
+$ sudo apt update
+$ sudo apt install libb64-dev
+$ pip install "tritonclient[http]"
+```
+
+#### Run the model inference
+Let's run inference on `mnist_sample.jpg`.
+
+```bash
+$ python infer.py
+
+Shape: (1, 1, 28, 28) , Type: float32
+
+{'model_name': 'mnist_cnn', 'model_version': '1', 'outputs': [{'name': 'output__0', 'datatype': 'FP32', 'shape': [1, 10], 'data': [-26.26696014404297, -22.597688674926758, -28.230932235717773, -6.869289875030518, -29.643720626831055, -0.0010399178136140108, -23.8032169342041, -23.27438735961914, -20.790000915527344, -16.399457931518555]}]}
+
+Prediction Result: 5
+
+{'model_stats': [{'name': 'mnist_cnn', 'version': '1', 'last_inference': 1645981740843, 'inference_count': 11, 'execution_count': 11, 'inference_stats': {'success': {'count': 11, 'ns': 1005967579}, 'fail': {'count': 0, 'ns': 0}, 'queue': {'count': 11, 'ns': 1994213}, 'compute_input': {'count': 11, 'ns': 122481903}, 'compute_infer': {'count': 11, 'ns': 880749163}, 'compute_output': {'count': 11, 'ns': 102340}, 'cache_hit': {'count': 0, 'ns': 0}}, 'batch_stats': [{'batch_size': 1,
+'compute_input': {'count': 11, 'ns': 122481903}, 'compute_infer': {'count': 11, 'ns': 880749163}, 'compute_output': {'count': 11, 'ns': 102340}}]}]}
+```
 
 ## References
 - https://github.com/triton-inference-server/server/blob/main/docs/quickstart.md
@@ -238,3 +259,4 @@ $ curl localhost:9000/v2/models/mnist_cnn/config
 - https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md
 - https://github.com/triton-inference-server/backend/blob/main/README.md#backends
 - https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md#auto-generated-model-configuration
+- https://github.com/triton-inference-server/client/blob/main/src/python/examples/simple_http_infer_client.py
